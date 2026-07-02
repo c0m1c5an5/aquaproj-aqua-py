@@ -1,0 +1,56 @@
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "setuptools-download",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aquaproj-aqua"
+version = "2.60.0-0"
+description = "Python wrapper around invoking aqua (https://github.com/aquaproj/aqua)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE", "LICENSE.aqua"]
+authors = [
+    { name = "Maksym Kondratenko", email = "m.kondratenko.ua@gmail.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+Homepage = "https://github.com/c0m1c5an5/aquaproj-aqua-py"
+
+[tool.setuptools]
+py-modules = []
+
+[dependency-groups]
+dev = [
+    "build",
+    "setuptools-download",
+    "requests",
+    "configupdater",
+    "ruff",
+    "pre-commit",
+    "tox",
+]
+
+[tool.tox]
+env_list = ["py"]
+
+[tool.tox.env_run_base]
+commands = [
+    ["aqua", "--version"],
+    ["aqua", "--help"],
+]

@@ -1,0 +1,8 @@
+/dist/
+/build/
+/wheelhouse/
+*.egg-info/
+__pycache__/
+.tox/
+.venv/
+.ruff_cache/

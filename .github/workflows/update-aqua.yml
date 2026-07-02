@@ -1,0 +1,49 @@
+name: Update aqua
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.12"
+          activate-environment: true
+
+      - run: uv sync --no-install-project
+
+      - name: Update to latest aqua release
+        id: update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          version="$(python scripts/update_aqua.py --aqua-version latest)"
+          delimiter="$(openssl rand -hex 16)"
+          {
+            echo "version<<${delimiter}"
+            echo "${version}"
+            echo "${delimiter}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: update-aqua
+          delete-branch: true
+          commit-message: "Update aqua to v${{ steps.update.outputs.version }}"
+          title: "Update aqua to v${{ steps.update.outputs.version }}"
+          body: |
+            Automated update of the bundled aqua binary to `${{ steps.update.outputs.version }}`.
+
+            - Bumped `version` in `pyproject.toml`
+            - Regenerated download URLs and SHA256 checksums in `setup.cfg`
