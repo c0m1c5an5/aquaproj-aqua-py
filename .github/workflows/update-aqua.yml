@@ -42,6 +42,9 @@ jobs:
           delete-branch: true
           commit-message: "Update aqua to v${{ steps.update.outputs.version }}"
           title: "Update aqua to v${{ steps.update.outputs.version }}"
+          add-paths: |
+            pyproject.toml
+            setup.cfg
           body: |
             Automated update of the bundled aqua binary to `${{ steps.update.outputs.version }}`.
 
