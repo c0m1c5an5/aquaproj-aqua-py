@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aquaproj-aqua"
-version = "2.61.0-0"
+version = "2.62.0-0"
 description = "Python wrapper around invoking aqua (https://github.com/aquaproj/aqua)"
 readme = "README.md"
 requires-python = ">=3.9"
