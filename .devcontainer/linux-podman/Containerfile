@@ -1,0 +1,78 @@
+FROM mcr.microsoft.com/devcontainers/python:3.14-trixie@sha256:3b3c45535947751e9dfcd513ef5bee858d221844f55e278e92d1cd8f5b1f2972
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+<<~~~
+set -exuo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+apt update
+apt install -y \
+        git-lfs \
+        git-delta \
+        fzf \
+        golang \
+        pre-commit \
+        podman-compose \
+        podman \
+        fuse-overlayfs \
+        slirp4netns \
+        uidmap \
+        libcap2-bin \
+        qemu-system-x86 \
+        qemu-utils
+~~~
+
+RUN ln -s /usr/bin/vim.tiny /usr/bin/vim
+
+RUN <<~~~
+chmod u-s /usr/bin/newuidmap /usr/bin/newgidmap
+setcap cap_setuid=ep /usr/bin/newuidmap
+setcap cap_setgid=ep /usr/bin/newgidmap
+~~~
+
+COPY --link --chown=0 --chmod=0644 <<~~~ /etc/subuid
+vscode:1:999
+vscode:1001:64535
+~~~
+
+COPY --link --chown=0 --chmod=0644 <<~~~ /etc/subgid
+vscode:1:999
+vscode:1001:64535
+~~~
+
+COPY --link --chown=vscode --chmod=0644 <<~~~ /home/vscode/.config/containers/containers.conf
+[containers]
+volumes = ["/proc:/proc"]
+default_sysctls = []
+~~~
+
+COPY --link --chown=vscode --chmod=0644 <<~~~ /etc/containers/containers.conf
+[containers]
+userns="host"
+ipcns="host"
+utsns="host"
+cgroupns="host"
+cgroups="disabled"
+log_driver = "k8s-file"
+
+[engine]
+cgroup_manager = "cgroupfs"
+events_logger="file"
+runtime="crun"
+~~~
+
+USER vscode
+ENV HOME=/home/vscode
+
+RUN <<~~~
+pnpm_rc='export PATH="${PNPM_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/pnpm}/bin:${PATH}"'
+
+printf "\n" ~/.zshrc
+printf "%s\n" "${pnpm_rc}" 'source <(fzf --zsh)' >> ~/.zshrc
+
+printf "\n" ~/.bashrc
+printf "%s\n" "${pnpm_rc}" 'eval "$(fzf --bash)"' >> ~/.bashrc
+~~~
+# Mount point for the molecule-qemu-cache volume (inherits this ownership).
+RUN mkdir -p ~/.cache/molecule-qemu

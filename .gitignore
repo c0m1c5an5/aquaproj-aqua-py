@@ -1,6 +1,7 @@
 /dist/
 /build/
 /wheelhouse/
+.devcontainer/local
 *.egg-info/
 __pycache__/
 .tox/
